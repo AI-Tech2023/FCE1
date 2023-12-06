@@ -4,6 +4,7 @@ export type MessageType = {
     message: string;
     type: messageType;
     sourceDocuments?: any;
+    fileAnnotations?: any;
 };
 export type BotProps = {
     chatflowid: string;
@@ -21,6 +22,7 @@ export type BotProps = {
     titleAvatarSrc?: string;
     fontSize?: number;
     isFullPage?: boolean;
+    toggleSize?: () => void;
 };
 export declare const Bot: (props: BotProps & {
     class?: string;

@@ -12,6 +12,7 @@ import socketIOClient from 'socket.io-client'
 import { Popup } from '@/features/popup'
 import { Avatar } from '@/components/avatars/Avatar'
 import { DeleteButton } from '@/components/SendButton'
+import { ToggleSizeButton } from '@/components/SendButton' // AIT: Import ToggleSizeButton
 
 type messageType = 'apiMessage' | 'userMessage' | 'usermessagewaiting'
 
@@ -19,6 +20,7 @@ export type MessageType = {
     message: string
     type: messageType,
     sourceDocuments?: any
+    fileAnnotations?: any
 }
 
 export type BotProps = {
@@ -37,6 +39,7 @@ export type BotProps = {
     titleAvatarSrc?: string
     fontSize?: number
     isFullPage?: boolean
+    toggleSize?: () => void // AIT: Define the type for toggleSize function
 }
 
 const defaultWelcomeMessage = 'Hi there! How can I help?'
@@ -212,12 +215,14 @@ export const Bot = (props: BotProps & { class?: string }) => {
 
         setMessages((prevMessages) => {
             const messages: MessageType[] = [...prevMessages, { message: value, type: 'userMessage' }]
-            addChatMessage(messages)
-            return messages
+            addChatMessage(messages) // AIT: This message will be sent
+            return messages // AIT: This message will be shown
         })
 
+        const currentURL = props.userMessage?.currentURL // AIT: Const for current URL
         const body: IncomingInput = {
-            question: value,
+            question: value + currentURL, // AIT: The current URL will be sent to openAI. But it will not be shown in the Chat.
+            //question: value, // Original
             history: messageList,
             chatId: chatId()
         }
@@ -241,7 +246,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
                 else text = JSON.stringify(data, null, 2)
 
                 setMessages((prevMessages) => {
-                    const messages: MessageType[] = [...prevMessages, { message: text, sourceDocuments: data?.sourceDocuments, type: 'apiMessage' }]
+                    const messages: MessageType[] = [...prevMessages, { message: text, sourceDocuments: data?.sourceDocuments, fileAnnotations: data?.fileAnnotations, type: 'apiMessage' }]
                     addChatMessage(messages)
                     return messages
                 })
@@ -297,6 +302,7 @@ export const Bot = (props: BotProps & { class?: string }) => {
                     type: message.type
                 }
                 if (message.sourceDocuments) chatHistory.sourceDocuments = message.sourceDocuments
+                if (message.fileAnnotations) chatHistory.fileAnnotations = message.fileAnnotations
                 return chatHistory
             })
             setMessages([...loadedMessages])
@@ -385,6 +391,8 @@ export const Bot = (props: BotProps & { class?: string }) => {
                                     {message.type === 'apiMessage' && (
                                         <BotBubble
                                             message={message.message}
+                                            fileAnnotations={message.fileAnnotations}
+                                            apiHost={props.apiHost}
                                             backgroundColor={props.botMessage?.backgroundColor}
                                             textColor={props.botMessage?.textColor}
                                             showAvatar={props.botMessage?.showAvatar}
@@ -445,6 +453,12 @@ export const Bot = (props: BotProps & { class?: string }) => {
                             <span class="px-3 whitespace-pre-wrap font-semibold max-w-full">{props.title}</span>
                         </Show>
                         <div style={{ flex: 1 }}></div>
+
+                        {/* AIT: Add Toggle Size Button */}
+                        <ToggleSizeButton sendButtonColor={props.bubbleTextColor} type='button' isDisabled={messages().length === 1} class='my-2 ml-2' on:click={props.toggleSize}>
+                            <span style={{ 'font-family': 'Poppins, sans-serif' }}>Clear</span>
+                        </ToggleSizeButton>
+
                         <DeleteButton sendButtonColor={props.bubbleTextColor} type='button' isDisabled={messages().length === 1} class='my-2 ml-2' on:click={clearChat}>
                             <span style={{ 'font-family': 'Poppins, sans-serif' }}>Clear</span>
                         </DeleteButton>
