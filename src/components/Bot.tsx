@@ -467,6 +467,7 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               )}
             </For>
           </div>
+          {props.showTitle ? (
           <div
               style={{
                 display: 'flex',
@@ -506,26 +507,9 @@ export const Bot = (botProps: BotProps & { class?: string }) => {
               class="my-2 ml-2"
               on:click={clearChat}
             >
-              <Show when={props.titleAvatarSrc}>
-                <>
-                  <div style={{ width: '15px' }} />
-                  <Avatar initialAvatarSrc={props.titleAvatarSrc} />
-                </>
-              </Show>
-              <Show when={props.title}>
-                <span class="px-3 whitespace-pre-wrap font-semibold max-w-full">{props.title}</span>
-              </Show>
-              <div style={{ flex: 1 }} />
-              <DeleteButton
-                sendButtonColor={props.bubbleTextColor}
-                type="button"
-                isDisabled={messages().length === 1}
-                class="my-2 ml-2"
-                on:click={clearChat}
-              >
-                <span style={{ 'font-family': 'Poppins, sans-serif' }}>Clear</span>
-              </DeleteButton>
-            </div>
+              <span style={{ 'font-family': 'Poppins, sans-serif' }}>Clear</span>
+            </DeleteButton>
+          </div>
           ) : null}
           <TextInput
             backgroundColor={props.textInput?.backgroundColor}
